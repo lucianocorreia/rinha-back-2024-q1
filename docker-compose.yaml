@@ -1,15 +1,16 @@
 version: "3.5"
 
 services:
-  api01: &api
-    image: camargodouglas/rinha_backend_2024_q1_go:v2
+  api01: &api # image: lucianocorreia/rinha-backend-2024-q1:latest
+    build:
+      context: .
     container_name: api01
     hostname: api01
     environment:
-      - PORT=8080
-      - DATABASE_URL=postgresql://pg:pg@db:5432/rinha
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/rinha
     ports:
-      - "8080:8080"
+      - "3000:3000"
     depends_on:
       db:
         condition: service_healthy
@@ -23,19 +24,19 @@ services:
     container_name: api02
     hostname: api02
     ports:
-      - "8081:8080"
+      - "3001:3000"
   db:
     image: postgres:latest
     ports:
-      - "5433:5432"
+      - "5432:5432"
     environment:
-      - POSTGRES_PASSWORD=pg
-      - POSTGRES_USER=pg
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
       - POSTGRES_DB=rinha
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pg -d rinha"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d rinha"]
       interval: 5s
       timeout: 5s
       retries: 5
