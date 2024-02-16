@@ -29,7 +29,7 @@ type (
 
 func main() {
 	port := getEnv("PORT", "3000")
-	dsn := getEnv("DSN", "postgres://postgres:postgres@localhost/rinha?sslmode=disable")
+	dsn := getEnv("DSN", "postgres://postgres:postgres@db/rinha?sslmode=disable")
 
 	pc, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
@@ -93,7 +93,7 @@ func handleTransacoes(pool *pgxpool.Pool) http.HandlerFunc {
 		defer cancel()
 
 		var limite, saldo *int
-		err = pool.QueryRow(ctx, "CALL criar_tr($1, $2, $3, $4)", trb.ClienteID, trb.Valor, trb.Descricao, trb.Tipo).Scan(&limite, &saldo)
+		err = pool.QueryRow(ctx, "CALL criar_tr($1, $2, $3, $4)", trb.ClienteID, trb.Valor, trb.Tipo, trb.Descricao).Scan(&limite, &saldo)
 		if err != nil {
 			fmt.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
