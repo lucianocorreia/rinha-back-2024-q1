@@ -1,0 +1,8 @@
+POST http://localhost:3000/clientes/5/transacoes
+
+{
+  "valor": 100,
+  "tipo": "d",
+  "descricao": "compra"
+}
+
