@@ -95,26 +95,26 @@ func handleTransacoes(pool *pgxpool.Pool) http.HandlerFunc {
 			return
 		}
 
-		var trb Transacao
-		if err := json.NewDecoder(r.Body).Decode(&trb); err != nil {
+		var transacao Transacao
+		if err := json.NewDecoder(r.Body).Decode(&transacao); err != nil {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			return
 		}
 
-		if (trb.Tipo != "c" && trb.Tipo != "d") || trb.Valor <= 0 || len(trb.Descricao) == 0 || len(trb.Descricao) > 10 {
+		if (transacao.Tipo != "c" && transacao.Tipo != "d") || transacao.Valor <= 0 || len(transacao.Descricao) == 0 || len(transacao.Descricao) > 10 {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			return
 		}
-		trb.ClienteID = cid
-		if trb.Tipo == "d" {
-			trb.Valor = -trb.Valor
+		transacao.ClienteID = cid
+		if transacao.Tipo == "d" {
+			transacao.Valor = -transacao.Valor
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		var limite, saldo *int
-		err = pool.QueryRow(ctx, "CALL criar_tr($1, $2, $3, $4)", trb.ClienteID, trb.Valor, trb.Tipo, trb.Descricao).Scan(&saldo, &limite)
+		err = pool.QueryRow(ctx, "CALL criar_tr($1, $2, $3, $4)", transacao.ClienteID, transacao.Valor, transacao.Tipo, transacao.Descricao).Scan(&saldo, &limite)
 		if err != nil {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			return
